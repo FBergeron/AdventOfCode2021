@@ -1,13 +1,56 @@
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.Graphics;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.concurrent.TimeUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
 
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
 class Day11 {
+
+    class EnergyLevelBoard extends JPanel {
+
+        public EnergyLevelBoard(ArrayList<ArrayList<Integer>> rows) {
+            this.rows = rows;
+        }
+
+        public Dimension getPreferredSize() {
+            return new Dimension(400, 400);
+        }
+
+        public void paintComponent(Graphics g) {
+            super.paintComponent(g);
+
+            for (int y = 0; y < rows.size(); y++) {
+                ArrayList<Integer> row = rows.get(y);
+
+                for (int x = 0; x < row.size(); x++) {
+                    Integer energyLevel = row.get(x);
+                    g.setColor(new Color(energyLevel.intValue() * 25, energyLevel.intValue() * 25, energyLevel.intValue() * 25));
+                    g.fillRect(x * 40, y * 40, 40, 40);
+                }
+            }
+        }
+
+        public void setRows(ArrayList<ArrayList<Integer>> rows) {
+            this.rows = rows;
+            repaint();
+        }
+
+        private ArrayList<ArrayList<Integer>> rows;
+    }
 
     class Point {
 
@@ -95,8 +138,28 @@ class Day11 {
         rows = readInput("input.txt");
         System.out.println("rows="+rows);
 
+        JFrame frame = new JFrame("Octopus Energy Level");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JPanel panelMain = (JPanel)frame.getContentPane();
+
+        EnergyLevelBoard board = new EnergyLevelBoard(rows);
+        //JButton buttonNextStep = new JButton("Next Step");
+        //buttonNextStep.addActionListener(
+        //    new ActionListener() {
+        //        public void actionPerformed(ActionEvent evt) {
+        //            board.setRows(rows);
+        //        }
+        //    }
+        //);
+
+        panelMain.add(board, BorderLayout.CENTER);
+        //panelMain.add(buttonNextStep, BorderLayout.SOUTH);
+        frame.pack();
+        frame.setVisible(true);
+
         totalFlashes = 0;
-        for (int step = 0; step < 100; step++) {
+        for (int step = 0; step < 195; step++) {
             ArrayList<Point> flashedOctopus = new ArrayList<Point>();
             ArrayList<Point> flashingOctopus = new ArrayList<Point>();
             for (int y = 0; y < rows.size(); y++) {
@@ -179,6 +242,14 @@ class Day11 {
                 }
 
             }
+
+            try {
+                TimeUnit.MILLISECONDS.sleep(50);
+            }
+            catch(InterruptedException ignore) {
+            }
+
+            board.setRows(rows);
         }
         System.out.println("rows="+rows);
         System.out.println("totalFlashes="+totalFlashes);
