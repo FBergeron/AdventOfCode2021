@@ -94,7 +94,7 @@ class Day17 {
         return input;
     }
 
-    public void launchProbe(Point velocity) {
+    public boolean launchProbe(Point velocity) {
         int maxY = Integer.MIN_VALUE;
         Point pos = new Point(0, 0);
         for (int step = 0; ; step++) {
@@ -107,12 +107,12 @@ System.out.println( "After step " + (step + 1) + ", pos=" + pos + " velocity=" +
 
             if (pos.x >= targetAreaX1 && pos.x <= targetAreaX2 && pos.y >= targetAreaY1 && pos.y <= targetAreaY2) {
                 System.out.println("In target! maxY=" + maxY);
-                break;
+                return true;
             }
 
             if (pos.y < targetAreaY1) {
                 System.out.println("Too far!");
-                break;
+                return false;
             }
         }
     }
@@ -141,13 +141,18 @@ System.out.println( "After step " + (step + 1) + ", pos=" + pos + " velocity=" +
         // Point velocity = new Point(1, 10);
         // launchProbe(velocity);
 
-        for (int x = 1; x <= 100; x++) {
-            for (int y = 100; y >= 0; y--) {
+        HashSet<Point> rightVelocities = new HashSet<Point>();
+        for (int x = 1; x <= 300; x++) {
+            for (int y = 300; y >= -300; y--) {
                 System.out.println("v=(" + x + ", " + y + ")");
                 Point velocity = new Point(x, y);
-                launchProbe(velocity);
+                boolean isRight = launchProbe(velocity);
+                if (isRight)
+                    rightVelocities.add(velocity);
             }
         }
+        System.out.println("rightVelocities.size: " + rightVelocities.size());
+
     }
 
     public static void main(String[] args) {
