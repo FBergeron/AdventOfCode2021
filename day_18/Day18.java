@@ -21,6 +21,8 @@ class Day18 {
     class SNumber {
 
         public SNumber(String str) throws NumberFormatException {
+            StringBuilder regularNumber = null;
+
             if (str.charAt(0) != '[')
                 throw new NumberFormatException();
 
@@ -34,17 +36,19 @@ class Day18 {
                     pairIndex++;
                     i += childNumber.length() - 1;
                 }
-                else if (c == ']') {
+                else if (c == ']' || c == ',') {
+                    if (regularNumber != null) {
+                        pair[pairIndex] = Integer.valueOf(regularNumber.toString());
+                        pairIndex++;
+                        regularNumber = null;
+                    }
                     if (pairIndex == 2)
                         return;
-                    else
-                        throw new NumberFormatException();
-                }
-                else if (c == ',') {
                 }
                 else {
-                    pair[pairIndex] = Integer.valueOf(c + "");
-                    pairIndex++;
+                    if (regularNumber == null)
+                        regularNumber = new StringBuilder();
+                    regularNumber.append(c + "");
                 }
             }
         }
@@ -75,9 +79,11 @@ class Day18 {
         }
 
         public boolean isReducable() {
+            return false;
         }
 
         private boolean isReducableRec() {
+            return false;
         }
 
         Object[] pair = new Object[2];
@@ -123,8 +129,8 @@ class Day18 {
 
         System.out.println("input=" + input);
 
-        SNumber sumTest = input.get(0).add(input.get(1));
-        System.out.println("sumTest="+sumTest);
+        //SNumber sumTest = input.get(0).add(input.get(1));
+        //System.out.println("sumTest="+sumTest);
 
         for (SNumber number : input)
             System.out.println(number + " -> m=" + number.getMagnitude());
