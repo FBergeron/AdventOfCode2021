@@ -32,6 +32,7 @@ class Day18 {
 
                 if (c == '[') {
                     SNumber childNumber = new SNumber(str.substring(i));
+                    childNumber.parent = this;
                     pair[pairIndex] = childNumber;
                     pairIndex++;
                     i += childNumber.length() - 1;
@@ -76,6 +77,107 @@ class Day18 {
         }
 
         public void reduce() {
+            reduceRec(0);
+        }
+
+        public void showParent() {
+            showParentRec(0);
+        }
+
+        public void showParentRec(int depth) {
+System.out.println( "showParentRec depth="+depth+" parent="+parent);
+            for (int i = 0; i < pair.length; i++) {
+                if (pair[i] instanceof SNumber) {
+                    SNumber child = (SNumber)pair[i];
+                    child.showParentRec(depth + 1);
+                }
+            }
+        }
+
+
+        public void reduceRec(int depth) {
+            boolean mustReduceFromTopAgain = false;
+
+            if (depth == 4) {
+                System.out.println("Exploding " + this + "...");
+
+                // Search first left regular number and add it the first child.
+                SNumber tempSNumber = parent;
+                while (tempSNumber != null && tempSNumber.pair[0] != null && tempSNumber.pair[0] != this) {
+                    tempSNumber = parent;
+                }
+
+
+
+
+                SNumber rightMost = tempSNumber.pair[1];
+                    while (rightMost != null && rightMost.pair[1] != null && rightMost.pair[1] instanceof SNumber) {
+System.out.println( "Go down!" );
+                        rightMost = rightMost.pair[1];
+                    }
+                    if (rightMost != null) {
+System.out.println( "Found rightMost!" );
+                        rightMost.pair[1] =
+                        rightMost.pair[1] = Integer.valueOf(
+                            ((Integer)tempSNumber.pair[0]).intValue() + ((Integer)pair[0]).intValue());
+
+                    }
+                    tempSNumber.pair[0] = Integer.valueOf(
+                        ((Integer)tempSNumber.pair[0]).intValue() + ((Integer)pair[0]).intValue());
+                }
+
+//                // Search the first right regular number and add it the second child.
+//                tempSNumber = parent;
+//System.out.println( "tempSNumber="+tempSNumber );
+//                while (tempSNumber != null && tempSNumber.pair[1] instanceof SNumber) {
+//System.out.println( "Go up!" );
+//                    tempSNumber = tempSNumber.parent;
+//                }
+//                if (tempSNumber != null) {
+//System.out.println( "Found right parent" );
+//                    tempSNumber.pair[1] = Integer.valueOf(
+//                        ((Integer)tempSNumber.pair[1]).intValue() + ((Integer)pair[1]).intValue());
+//                }
+
+//                // Replace the current pair with a regular number 0.
+//System.out.println( "parent="+parent+" depth="+depth );
+//System.out.println( "parent.pair="+parent.pair );
+//                for (int i = 0; i < parent.pair.length; i++) {
+//                    if (parent.pair[i] == this)
+//                        parent.pair[i] = 0;
+//                }
+
+                mustReduceFromTopAgain = false;
+            }
+
+            for (int i = 0; i < pair.length; i++) {
+                Object child = pair[i];
+                if (child instanceof Integer) {
+                    Integer childRegularNumber = (Integer)child;
+                    if (childRegularNumber.intValue() > 9) {
+                        System.out.println("Splitting " + childRegularNumber + "...");
+                        SNumber newPair = new SNumber("[" +
+                            childRegularNumber.intValue() / 2 + "," +
+                            Math.round((float)childRegularNumber.intValue() / 2) + "]");
+                        newPair.parent = this;
+                        pair[i] = newPair;
+
+                        mustReduceFromTopAgain = true;
+                        break;
+                    }
+                }
+                else {
+                    SNumber childSNumber = (SNumber)child;
+                    childSNumber.reduceRec(depth + 1);
+                }
+            }
+
+            if (mustReduceFromTopAgain) {
+                SNumber topParent = this;
+                while(topParent.parent != null)
+                    topParent = topParent.parent;
+                topParent.reduce();
+            }
         }
 
         public boolean isReducable() {
@@ -87,6 +189,7 @@ class Day18 {
         }
 
         Object[] pair = new Object[2];
+        SNumber parent = null;
 
     }
 
@@ -124,16 +227,35 @@ class Day18 {
     }
 
     public void run() {
-        ArrayList<SNumber> input = readInput("input_test_1.txt");
+        //ArrayList<SNumber> input = readInput("input_test_1.txt");
+        ArrayList<SNumber> input = readInput("input_test_reduce.txt");
         //String input = readInput("input.txt");
 
         System.out.println("input=" + input);
 
+        //for (SNumber number : input)
+        //    //number.showParent();
+        //    number.reduce();
+
         //SNumber sumTest = input.get(0).add(input.get(1));
         //System.out.println("sumTest="+sumTest);
 
-        for (SNumber number : input)
-            System.out.println(number + " -> m=" + number.getMagnitude());
+        //for (SNumber number : input)
+        //    System.out.println(number + " -> m=" + number.getMagnitude());
+
+        //System.out.println("13/2="+Math.floor((float)13/2));
+        //System.out.println("13/2="+Math.round((float)13/2));
+
+        for (SNumber number : input) {
+            StringBuilder str = new StringBuilder();
+            str.append(number + " -> reduced=");
+            number.reduce();
+            str.append(number);
+            System.out.println(str.toString());
+        }
+
+//System.out.println( "parent="+((SNumber)input.get(4).pair[0]).parent );
+
     }
 
     public static void main(String[] args) {
